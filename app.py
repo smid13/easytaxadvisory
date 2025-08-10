@@ -184,10 +184,10 @@ def download_excel():
 
     output.seek(0)  # Vrátí pointer na začátek streamu
     
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False)
-    output.seek(0)
+    #output = io.BytesIO()
+    #with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+     #   df.to_excel(writer, index=False)
+    #output.seek(0)
 
     return send_file(output, as_attachment=True, download_name=f"{nazev_firmy_bez_data}_{today}.xlsx")
 
