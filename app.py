@@ -63,6 +63,25 @@ def index():
 
     df = pd.read_csv(io.StringIO(response.text), encoding="utf-8")
 
+    prehazeny_sloupce = [
+        "banka",
+        "typPohybuK@showAs",
+        "cisSouhrnne",
+        "kod",
+        "popis",
+        "varSym",
+        "nazFirmy",
+        "datVyst",
+        "sumCelkem",
+        "sumCelkemMen",
+        "mena",
+        "buc",
+        "smerKod",
+        "zuctovano"
+    ]
+
+    df = df[[col for col in prehazeny_sloupce if col in df.columns]]
+
     df.rename(columns={
         "banka": "Bank. účet",
         "typPohybuK@showAs": "Typ Pohybu",
@@ -82,6 +101,9 @@ def index():
 
     df["Vystaveno"] = df["Vystaveno"].astype(str).str.replace(r'\+.*', '', regex=True)
     df['Vystaveno'] = pd.to_datetime(df['Vystaveno'], errors='coerce').dt.strftime('%d-%m-%Y')
+
+    for col in ["Bank. účet", "Měna", "Kód Banky"]:
+        df[col] = df[col].str.replace("code:", "", regex=False).str.strip()    
 
     html_table = df.to_html(index=False, classes="table table-striped table-bordered", border=0)
 
