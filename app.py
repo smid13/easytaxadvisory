@@ -120,6 +120,8 @@ def download_excel():
     today = datetime.today().strftime("%Y-%m-%d")
     url = "/banka/(zuctovano = False).csv?limit=0&detail=custom:banka,typPohybuK(showAs),cisSouhrnne,kod,popis,varSym,nazFirmy,datVyst,sumCelkem,sumCelkemMen,mena(showAs),buc,smerKod(showAs),zuctovano"
     response = requests.get(BASE_URL + nazev_firmy_bez_data + url, verify=False, auth=(API_USER, API_PASS))
+
+    response.encoding = 'utf-8'
     df = pd.read_csv(io.StringIO(response.text), encoding="utf-8")
 
     # Pořadí sloupců
