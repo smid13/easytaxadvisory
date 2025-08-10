@@ -122,6 +122,68 @@ def download_excel():
     response = requests.get(BASE_URL + nazev_firmy_bez_data + url, verify=False, auth=(API_USER, API_PASS))
     df = pd.read_csv(io.StringIO(response.text), encoding="utf-8")
 
+    # Pořadí sloupců
+    prehazeny_sloupce = [
+        "banka",
+        "typPohybuK@showAs",
+        "cisSouhrnne",
+        "kod",
+        "popis",
+        "varSym",
+        "nazFirmy",
+        "datVyst",
+        "sumCelkem",
+        "sumCelkemMen",
+        "mena",
+        "buc",
+        "smerKod",
+        "zuctovano"
+    ]
+    df = df[[col for col in prehazeny_sloupce if col in df.columns]]
+
+    # Přejmenování sloupců
+    df.rename(columns={
+        "banka": "Bank. účet",
+        "typPohybuK@showAs": "Typ Pohybu",
+        "cisSouhrnne": "Čís. výpisu",
+        "kod": "Interní číslo",
+        "popis": "Popis",
+        "varSym": "Variabilní symbol",
+        "nazFirmy": "Název Firmy nebo jméno osoby",
+        "datVyst": "Vystaveno",
+        "sumCelkem": "Celkem [Kč]",
+        "sumCelkemMen": "Celkem [měna]",
+        "mena": "Měna",
+        "buc": "Číslo Bank. Účtu/Číslo platební karty",
+        "smerKod": "Kód Banky",
+        "zuctovano": "Zaúčtováno"
+    }, inplace=True)
+
+    # Oprava formátu datumu
+    df["Vystaveno"] = df["Vystaveno"].astype(str).str.replace(r'\+.*', '', regex=True)
+    df['Vystaveno'] = pd.to_datetime(df['Vystaveno'], errors='coerce').dt.strftime('%d-%m-%Y')
+
+    # Odstranění "code:"
+    for col in ["Bank. účet", "Měna", "Kód Banky"]:
+        df[col] = df[col].str.replace("code:", "", regex=False).str.strip()
+
+    # Vytvoření Excelu v paměti
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Data')
+
+        worksheet = writer.sheets['Data']
+        # Nastavení šířky sloupců podle obsahu
+        for i, col in enumerate(df.columns):
+            max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+            worksheet.set_column(i, i, max_len)
+
+        # Zapnutí filtrování a řazení
+        row_count, col_count = df.shape
+        worksheet.autofilter(0, 0, row_count, col_count - 1)
+
+    output.seek(0)  # Vrátí pointer na začátek streamu
+    
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False)
