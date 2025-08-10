@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>ABRA Report</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ccc; padding: 5px; }
-        th { background-color: #eee; }
-    </style>
+    <meta charset="utf-8">
+    <title>Report záloh</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<body>
-    <h1>ABRA Report – Real Time</h1>
-    {{ tables|safe }}
+<body class="p-3">
+    <h1>Report záloh - {{ date }}</h1>
+    <a href="/excel" class="btn btn-success mb-3">📥 Stáhnout Excel</a>
+    {{ table | safe }}
 </body>
 </html>
