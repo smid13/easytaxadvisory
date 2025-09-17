@@ -1,35 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
+<h2>Nezaúčtované pohyby ({{ date }})</h2>
 
-<h2>Data k {{ date }}</h2>
-
-<form method="post" action="{{ url_for('save_comments') }}">
-  <table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered">
     <thead>
-      <tr>
-        {% for col in columns %}
-          <th>{{ col }}</th>
-        {% endfor %}
-      </tr>
+        <tr>
+            {% for col in columns %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
     </thead>
     <tbody>
-      {% for row in data %}
+        {% for row in data %}
         <tr>
-          {% for col in columns %}
-            {% if col == "Komentář" %}
-              <td>
-                <input type="text" name="comment_{{ row['Interní číslo'] }}" 
-                       value="{{ row['Komentář'] }}" style="width: 100%">
-              </td>
-            {% else %}
-              <td>{{ row[col] }}</td>
-            {% endif %}
-          {% endfor %}
+            {% for col in columns %}
+                {% if col == "Komentář" %}
+                <td>
+                    <form method="POST" action="{{ url_for('save_comment_route') }}">
+                        <input type="hidden" name="record_id" value="{{ row['Interní číslo'] }}">
+                        <input type="text" name="comment" value="{{ row[col] or '' }}" class="form-control">
+                        <button type="submit" class="btn btn-sm btn-primary mt-1">Uložit</button>
+                    </form>
+                </td>
+                {% else %}
+                <td>{{ row[col] }}</td>
+                {% endif %}
+            {% endfor %}
         </tr>
-      {% endfor %}
+        {% endfor %}
     </tbody>
-  </table>
-  <button type="submit" class="btn btn-primary">💾 Uložit komentáře</button>
-</form>
-
+</table>
 {% endblock %}
